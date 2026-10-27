@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { GATEWAY_ORIGIN } from "./checkout";
 import { logActivity, mutateStore, readStore } from "./store";
 import type { PaymentRecord, PaymentStatus, StoreData } from "./types";
@@ -13,7 +14,8 @@ export function normalizePaymentStatus(
   ) {
     return "success";
   }
-  if (["refunded", "refund"].includes(value)) return "refunded";
+  if (["refunded", "refund", "reversed", "chargeback"].includes(value))
+    return "refunded";
   if (
     [
       "failed",
@@ -44,9 +46,14 @@ function isFailedPath(value: string) {
   );
 }
 
-export type GatewayState = "success" | "failed" | null;
+function isRefundedPath(value: string) {
+  return /\/(refund|refunded|reversed)\/?(\?|#|$)/i.test(value);
+}
+
+export type GatewayState = "success" | "failed" | "refunded" | null;
 
 export function stateFromPath(value: string): GatewayState {
+  if (isRefundedPath(value)) return "refunded";
   if (isSuccessPath(value)) return "success";
   if (isFailedPath(value)) return "failed";
   return null;
@@ -93,6 +100,15 @@ export function applyPaymentStatus(
   if (status === "pending") return payment;
   payment.status = status;
   payment.updatedAt = new Date().toISOString();
+  if (status === "refunded") {
+    store.refunds.unshift({
+      id: randomUUID(),
+      token: payment.token,
+      success: true,
+      error: null,
+      createdAt: payment.updatedAt,
+    });
+  }
   logActivity(store, {
     kind: "payment",
     title:
@@ -120,14 +136,20 @@ export async function syncPendingPayments() {
   if (now - lastSyncAt < 8000) return 0;
   lastSyncAt = now;
   const dayAgo = new Date(now - 24 * 60 * 60 * 1000).toISOString();
-  // Pending links, plus recently failed ones (a customer may retry and pay).
-  const open = readStore()
-    .payments.filter(
+  const monthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const all = readStore().payments;
+  // Pending links, recently failed ones (a customer may retry and pay),
+  // then recent paid ones (they may have been refunded on the gateway).
+  const open = [
+    ...all.filter(
       (item) =>
         item.status === "pending" ||
         (item.status === "failed" && item.updatedAt >= dayAgo),
-    )
-    .slice(0, 12);
+    ),
+    ...all
+      .filter((item) => item.status === "success" && item.updatedAt >= monthAgo)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+  ].slice(0, 12);
   if (open.length === 0) return 0;
   const results = (
     await Promise.all(
@@ -136,7 +158,10 @@ export async function syncPendingPayments() {
         return state && state !== item.status ? { token: item.token, state } : null;
       }),
     )
-  ).filter((r): r is { token: string; state: "success" | "failed" } => Boolean(r));
+  ).filter(
+    (r): r is { token: string; state: "success" | "failed" | "refunded" } =>
+      Boolean(r),
+  );
   if (results.length === 0) return 0;
   mutateStore((store) => {
     for (const { token, state } of results) {

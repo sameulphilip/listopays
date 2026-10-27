@@ -15,12 +15,10 @@ const PUBLIC_PREFIXES = [
 const ADMIN_PREFIXES = [
   "/users",
   "/settings",
-  "/refunds",
   "/charges",
   "/webhooks",
   "/api/users",
   "/api/settings",
-  "/api/refund",
   "/api/charge",
   "/api/webhook",
 ];

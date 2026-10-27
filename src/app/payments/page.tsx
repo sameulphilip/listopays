@@ -348,7 +348,7 @@ export default function PaymentsPage() {
                     <th className="px-5 py-3">Order</th>
                     <th className="px-5 py-3">Link</th>
                     <th className="px-5 py-3">Created</th>
-                    {role === "admin" ? <th className="px-5 py-3">Action</th> : null}
+                    <th className="px-5 py-3">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -385,21 +385,28 @@ export default function PaymentsPage() {
                       <td className="px-5 py-3.5">
                         <When value={p.createdAt} />
                       </td>
-                      {role === "admin" ? (
-                        <td className="px-5 py-3.5">
+                      <td className="px-5 py-3.5">
+                        {p.status === "success" ? (
                           <Button
                             type="button"
                             tone="ghost"
-                            disabled={
-                              p.status === "refunded" || refunding === p.token
-                            }
+                            disabled={refunding === p.token}
                             pending={refunding === p.token}
-                            onClick={() => refund(p.token)}
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  `Refund ${p.amount} ${p.currency} for "${p.order}"?`,
+                                )
+                              )
+                                void refund(p.token);
+                            }}
                           >
                             Refund
                           </Button>
-                        </td>
-                      ) : null}
+                        ) : (
+                          <span className="text-ink-soft">—</span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -20,6 +20,14 @@ export async function POST(request: Request) {
       );
     }
 
+    const existing = readStore().payments.find((p) => p.token === token);
+    if (existing && existing.status !== "success") {
+      return NextResponse.json(
+        { success: false, error: "Only paid payments can be refunded" },
+        { status: 409 },
+      );
+    }
+
     await refundPayment(token);
     const record = mutateStore((store) => {
       const item = {

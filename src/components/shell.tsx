@@ -35,7 +35,7 @@ const NAV = [
     label: "Money",
     items: [
       { href: "/charges", label: "Charges", icon: Lightning, roles: ["admin"] },
-      { href: "/refunds", label: "Refunds", icon: ArrowCounterClockwise, roles: ["admin"] },
+      { href: "/refunds", label: "Refunds", icon: ArrowCounterClockwise, roles: ["admin", "user"] },
     ],
   },
   {

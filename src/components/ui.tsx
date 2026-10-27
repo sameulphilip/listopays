@@ -285,7 +285,7 @@ export function StatusPill({ status }: { status: string }) {
   const map: Record<string, string> = {
     pending: "bg-pending-soft text-[oklch(0.42_0.08_75)]",
     success: "bg-ink text-paper",
-    refunded: "bg-gold-soft text-ink-soft",
+    refunded: "bg-[#ede9fe] text-[#6d28d9] ring-1 ring-inset ring-[#c4b5fd]",
     failed: "bg-[#fee2e2] text-[#b91c1c] ring-1 ring-inset ring-[#fca5a5]",
     live: "bg-ink text-paper",
     offline: "bg-warn-soft text-warn",
