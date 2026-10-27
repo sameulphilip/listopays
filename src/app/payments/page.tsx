@@ -338,80 +338,65 @@ export default function PaymentsPage() {
               body="Fill in the payer on the left. The checkout link will appear here so you can copy and send it."
             />
           ) : (
-            <div className="table-wrap overflow-hidden rounded-[1.75rem] border border-line bg-panel shadow-[var(--shadow)]">
-              <table className="w-full min-w-[720px] text-[13px]">
-                <thead className="text-ink-soft">
-                  <tr>
-                    <th className="px-5 py-3">Status</th>
-                    <th className="px-5 py-3">Amount</th>
-                    <th className="px-5 py-3">Customer</th>
-                    <th className="px-5 py-3">Order</th>
-                    <th className="px-5 py-3">Link</th>
-                    <th className="px-5 py-3">Created</th>
-                    <th className="px-5 py-3">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {payments.map((p) => (
-                    <tr key={p.id} className="border-t border-line">
-                      <td className="px-5 py-3.5">
-                        <StatusPill status={p.status} />
-                      </td>
-                      <td className="px-5 py-3.5">
+            <ul className="overflow-hidden rounded-[1.75rem] border border-line bg-panel shadow-[var(--shadow)]">
+              {payments.map((p) => (
+                <li
+                  key={p.id}
+                  className="flex flex-col gap-3 border-t border-line px-5 py-4 first:border-t-0 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <StatusPill status={p.status} />
+                      <span className="text-[15px] font-semibold tracking-[-0.01em]">
                         <Money amount={p.amount} currency={p.currency} />
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <p>{p.customerName ?? p.customer}</p>
-                        {p.customerEmail ? (
-                          <p className="text-[12px] text-ink-soft">
-                            {p.customerEmail}
-                          </p>
-                        ) : null}
-                      </td>
-                      <td className="px-5 py-3.5">{p.order}</td>
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-2">
-                          <a
-                            href={p.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-[12px] font-medium underline underline-offset-4"
-                          >
-                            Open
-                          </a>
-                          <CopyButton value={p.url} />
-                        </div>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <When value={p.createdAt} />
-                      </td>
-                      <td className="px-5 py-3.5">
-                        {p.status === "success" ? (
-                          <Button
-                            type="button"
-                            tone="ghost"
-                            disabled={refunding === p.token}
-                            pending={refunding === p.token}
-                            onClick={() => {
-                              if (
-                                window.confirm(
-                                  `Refund ${p.amount} ${p.currency} for "${p.order}"?`,
-                                )
-                              )
-                                void refund(p.token);
-                            }}
-                          >
-                            Refund
-                          </Button>
-                        ) : (
-                          <span className="text-ink-soft">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </span>
+                      <When value={p.createdAt} />
+                    </div>
+                    <p className="mt-1.5 truncate text-[13px]">
+                      <span className="font-medium">
+                        {p.customerName ?? p.customer}
+                      </span>
+                      <span className="text-ink-soft"> · {p.order}</span>
+                    </p>
+                    {p.customerEmail ? (
+                      <p className="truncate text-[12px] text-ink-soft">
+                        {p.customerEmail}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[12px] font-medium underline underline-offset-4"
+                    >
+                      Open
+                    </a>
+                    <CopyButton value={p.url} />
+                    {p.status === "success" ? (
+                      <Button
+                        type="button"
+                        tone="ghost"
+                        className="min-h-9! px-3.5! text-[12.5px]!"
+                        disabled={refunding === p.token}
+                        pending={refunding === p.token}
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              `Refund ${p.amount} ${p.currency} for "${p.order}"?`,
+                            )
+                          )
+                            void refund(p.token);
+                        }}
+                      >
+                        Refund
+                      </Button>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ul>
           )}
         </ListPane>
       </SplitDesk>

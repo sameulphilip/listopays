@@ -182,7 +182,7 @@ export function SplitDesk({
   children: ReactNode;
 }) {
   return (
-    <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,400px)_minmax(0,1fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-8 xl:grid-cols-[minmax(0,400px)_minmax(0,1fr)]">
       {form}
       {children}
     </div>
