@@ -1,0 +1,41 @@
+html,
+body {
+  background: #f4efe6 !important;
+}
+
+.min-h-screen.bg-cover,
+.min-h-screen[style*="background-image"] {
+  background-image: none !important;
+  background-color: #f4efe6 !important;
+}
+
+.mb-8 > img {
+  display: block !important;
+  height: 52px !important;
+  width: auto !important;
+  max-width: 280px !important;
+  margin: 0 auto 1.25rem !important;
+  object-fit: contain !important;
+}
+
+[class*="bg-[#446CFF]/10"] {
+  background-color: rgb(28 25 22 / 0.08) !important;
+}
+
+[class*="bg-[#446CFF]"] {
+  background-color: #1c1916 !important;
+}
+
+[class*="text-[#446CFF]"] {
+  color: #1c1916 !important;
+}
+
+button[class*="bg-[#446CFF]"]:hover,
+[type="submit"][class*="bg-[#446CFF]"]:hover {
+  background-color: #11100e !important;
+}
+
+input:focus-visible,
+button:focus-visible {
+  outline-color: #1c1916 !important;
+}
